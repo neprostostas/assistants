@@ -8,12 +8,12 @@
           <div class="q-pa-md my-col">
             <q-list bordered separator>
               <q-item
-                clickable
-                v-ripple
-                v-for="email in emails"
-                :key="email.ID['0']"
-                @click="handleEmailClick(email.ID[0])"
-                :class="{ active: isSelectedEmail(email.ID[0]) }"
+                  clickable
+                  v-ripple
+                  v-for="email in emails"
+                  :key="email.ID['0']"
+                  @click="handleEmailClick(email.ID[0])"
+                  :class="{ active: isSelectedEmail(email.ID[0]), unclickable: isSelectedEmailInArray(email.ID[0]) }"
               >
                 <q-item-section>
                   <q-item-label overline>{{ email['Titel']['0'] }}</q-item-label>
@@ -27,10 +27,10 @@
         <div class="col">
           <h4 class="q-mb-sm">{{ title }}</h4>
           <div
-            class="q-pa-md my-col"
-            ref="el"
-            :class="{ 'no-scroll': showModal }"
-            @scroll="onScroll"
+              class="q-pa-md my-col"
+              ref="el"
+              :class="{ 'no-scroll': showModal }"
+              @scroll="onScroll"
           >
             <ModalCom v-model:showModal="showModal" :y="y" @getDataModal="handleDataFromModal" />
             <q-list bordered separator>
@@ -123,7 +123,6 @@ onMounted(() => {
   });
 });
 
-
 const { name, getPieceIntelligence } = toRefs(store)
 
 const faqData = computed(() => Object.entries(faqIds))
@@ -163,6 +162,7 @@ const handleEmailClick = (id) => {
   } else {
     getEmailId(id)
   }
+
 }
 
 const isSelectedEmail = (id) => {
@@ -220,7 +220,17 @@ const handleDataFromModal = (item) => {
   modalAIData.value = item
 }
 
+const isSelectedEmailInArray = (emailId) => {
+  // Check if the email ID is present in the selectedEmailIdBeforeSendData array
+  return selectedEmailIdBeforeSendData.value.includes(emailId);
+}
+const selectedEmailIdBeforeSendData = ref([])
+
 const sendData = async () => {
+
+  // Add the selected email ID to the array
+  selectedEmailIdBeforeSendData.value.push(selectedEmailId.value);
+  selectedEmailId.value = null;
 
   let payload = {}
 
@@ -286,5 +296,9 @@ const sendData = async () => {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 20px;
+}
+.unclickable {
+  pointer-events: none;
+  background-color: #a7a6aa;
 }
 </style>
