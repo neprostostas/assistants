@@ -7,6 +7,7 @@
           v-for="(item, id) in response"
           :key="item['FAQ-Text']"
           :item="item"
+          :active-card="activeCardId"
           :id="id"
           :class="{ active: activeCardId === item.id }"
           @toggleActive="setActiveCard(item)"
@@ -16,7 +17,7 @@
     <q-separator />
 
     <q-card-actions align="right">
-      <q-btn flat label="Close" color="primary" @click="closePopup" />
+      <q-btn flat label="Close" color="orange" @click="closePopup" />
     </q-card-actions>
   </q-card>
 </template>
@@ -50,8 +51,7 @@ const closePopup = () => {
   activeCardId.value = null;
 }
 
-const activeCardId = ref(null);
-
+const activeCardId = ref('');
 
 const setActiveCard = (item) => {
 
@@ -80,6 +80,6 @@ const setActiveCard = (item) => {
   height: calc(100% - 50px);
 }
 .active {
-  background: #daddf1;
+  background: #f1bf3c45;
 }
 </style>

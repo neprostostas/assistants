@@ -35,11 +35,23 @@
             <ModalCom v-model:showModal="showModal" :y="y" @getDataModal="handleDataFromModal" />
             <q-list bordered separator>
               <template v-for="[id, data] in faqData" :key="id">
-                <q-item @click="handleFaqClick(id, data)" clickable v-ripple :class="{ active: isSelectedFaq(id) }">
+                <q-item class="item-manual" @click="handleFaqClick(id, data)" clickable v-ripple :class="{ active: isSelectedFaq(id) }">
                   <q-item-section>
                     <q-item-label overline>{{ data['FAQ-Title'] }}</q-item-label>
                     <q-item-label>{{ data['FAQ-Text'] }}</q-item-label>
                     <q-item-label caption>{{ data['FAQ-Solution'] }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section @click.stop style="margin: 0!important;">
+                    <q-btn
+                        @click="toggleTextColor(id)"
+                        :class="{'mark-custom': mark, 'text-black': isSelectedFaq(id) && isSelectedButton(id)}"
+                        unelevated
+                        color="orange"
+                        text-color="white"
+                        size="xs"
+                        icon="flag"
+                        v-if="mark"
+                    />
                   </q-item-section>
                 </q-item>
               </template>
@@ -63,7 +75,7 @@
 </template>
 
 <script setup>
-import {computed, ref, toRefs, watchEffect} from 'vue'
+import {computed, onMounted, ref, toRefs, watch, watchEffect} from 'vue'
 import ModalCom from '@/components/ModalCom.vue'
 import emails from '@/data/mails.json'
 import faqIds from '@/data/faq_ids.json'
@@ -72,6 +84,45 @@ import HeaderCom from "@/components/HeaderCom.vue";
 import axios from "axios";
 
 const store = useUserSelectionStore()
+
+
+const mark = computed(() => store.getMarkTheAnswer === 'yes')
+let flag = computed(() => store.getFlagTheAnswer === 'no')
+
+
+const selectedButtonId = ref(null); // To store the ID of the selected button
+
+const toggleTextColor = (id) => {
+  // Check if the parent q-item with the given ID is already selected
+  if (isSelectedFaq(id)) {
+    // Toggle the selected state of the button
+    selectedButtonId.value = isSelectedButton(id) ? null : id;
+    flag = store.addFlagTheAnswer('yes');
+  } else {
+    // Select the new parent q-item and reset the selected button
+    selectedFaqId.value = id;
+    selectedButtonId.value = null;
+    flag = store.addFlagTheAnswer('no');
+  }
+};
+
+const isSelectedButton = (id) => {
+  // Check if the button with the given ID is selected
+  return selectedButtonId.value === id;
+};
+
+onMounted(() => {
+  // Initialize the flag when the component is mounted
+  store.addFlagTheAnswer('no');
+
+  // Watch for changes in the selectedFaqId and set flag accordingly
+  watch(selectedFaqId, (newFaqId) => {
+    if (newFaqId) {
+      store.addFlagTheAnswer('no');
+    }
+  });
+});
+
 
 const { name, getPieceIntelligence } = toRefs(store)
 
@@ -174,14 +225,13 @@ const sendData = async () => {
   let payload = {}
 
   const store = useUserSelectionStore()
-
-  const mark = computed(() => store.getMarkTheAnswer)
+  const flag = computed(() => store.getFlagTheAnswer)
 
   // Create an object with the values of ref objects
   if (!modalAIData.value) {
     payload = {
       ai: false,
-      mark: mark.value,
+      flag: flag.value,
       emailId: emailId.value,
       faqID: faqID.value,
       faqTitle: faqTitle.value,
@@ -191,13 +241,14 @@ const sendData = async () => {
   } else {
     payload = {
       ai: true,
-      mark: mark.value,
+      flag: flag.value,
       chance: modalAIData.value.chance,
       emailId: emailId.value,
       faqID: modalAIData.value.id,
       faqTitle: modalAIData.value['FAQ-Title'],
       faqText: modalAIData.value['FAQ-Text'],
       faqSolution: modalAIData.value['FAQ-Solution'],
+
     };
   }
 
@@ -229,6 +280,11 @@ const sendData = async () => {
   position: relative;
 }
 .active {
-  background: #daddf1;
+  background: #f1bf3c45;
+}
+.item-manual {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
 }
 </style>

@@ -38,6 +38,12 @@ export const useUserSelectionStore = defineStore('userSelection', () => {
     markTheAnswer.value = value
   }
   /*------*/
+  const flagTheAnswer = ref('no')
+  const getFlagTheAnswer = computed(() => flagTheAnswer.value)
+  function addFlagTheAnswer(value) {
+    flagTheAnswer.value = value
+  }
+  /*------*/
   const data = ref({
     0: {
       subDataId: ''
@@ -69,6 +75,9 @@ export const useUserSelectionStore = defineStore('userSelection', () => {
     markTheAnswer,
     getMarkTheAnswer,
     addMarkTheAnswer,
+    flagTheAnswer,
+    getFlagTheAnswer,
+    addFlagTheAnswer,
     data,
     getData,
     addData
