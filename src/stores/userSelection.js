@@ -20,7 +20,7 @@ export const useUserSelectionStore = defineStore('userSelection', () => {
     name.value = value
   }
   /*------*/
-  const pieceIntelligence = ref('no')
+  const pieceIntelligence = ref('yes')
   const getPieceIntelligence = computed(() => pieceIntelligence.value.toLowerCase())
   function addPieceIntelligence(value) {
     pieceIntelligence.value = value
