@@ -275,6 +275,8 @@ const sendData = async () => {
     }
   }
 
+  showModal.value = false
+
 }
 
 </script>
